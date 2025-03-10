@@ -9,7 +9,7 @@ node_modules/
 *.log
 
 # env
-*.env
+backend/.env
 
 
 # OS-specific
