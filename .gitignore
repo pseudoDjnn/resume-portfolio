@@ -1,2 +1,14 @@
-venv/
+# Python
+backend/venv/
 __pycache__/
+*.pyc
+*.pyo
+
+# Node.js
+node_modules/
+*.log
+
+
+# OS-specific
+.DS_Store
+Thumbs.db
