@@ -17,12 +17,8 @@ def get_spotify_token():
     }
 
     response = requests.post(url, headers=headers, data=data)
-    # print("Status Code:", response.status_code)
-    # print("Response JSON:", response.json())  # Debug output
 
     return response.json().get("access_token")
-
-# print(get_spotify_token())  # Test again
 
 
 def get_tracks():
@@ -38,18 +34,17 @@ def get_tracks():
     response = requests.get(url, headers=headers)
     data = response.json()
 
-    # print("Tracks Response JSON:", data)  # Debugging print
-
-    if "items" not in data:
-        return {"error": "Spotify API did not return 'items'", "raw_response": data}
-
-    tracks = [
-        {
-            "name": item["track"]["name"],
-            "artist": item["track"]["artists"][0]["name"]
-        }
-        for item in data["items"][:10]
-    ]
+    tracks = []
+    for item in data.get("items", [])[:10]:
+        track = item.get("track", {})
+        album = track.get("album", {})
+        images = album.get("images", [])
+        
+        tracks.append({
+            "name": track.get("name", "Unknown Track"),
+            "artist": track.get("artists", [{}])[0].get("name", "Unknown Artist"),
+            "album cover": images[0]["url"] if images else ""  # Get album cover
+        })
 
     return tracks
 
