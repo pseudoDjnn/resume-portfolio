@@ -4,38 +4,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Spotify + Three.js</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <title>Spotify OOP Player</title>
   <script src="https://sdk.scdn.co/spotify-player.js"></script>
 </head>
 
 <body>
-  <!-- Three.js Canvas (Background) -->
-  <canvas id="threejs-canvas"></canvas>
-
-  <!-- Spotify Player Overlay -->
-  <div id="spotify-player-container">
-    <button id="toggle-player">🎵</button>
-    <div id="spotify-player" class="collapsed">
-      <div id="track-info">
-        <img id="album-art" src="" alt="Album Cover">
-        <div>
-          <h3 id="track-name">Track Name</h3>
-          <p id="artist-name">Artist</p>
-        </div>
-      </div>
-      <div id="controls">
-        <button id="prev-track">⏮</button>
-        <button id="play-pause">▶</button>
-        <button id="next-track">⏭</button>
-        <button id="shuffle">🔀</button>
-      </div>
-    </div>
-  </div>
-
-  <script src="js/player.js"></script>
-  <script src="js/uiController.js"></script>
-  <script src="js/main.js"></script>
+  <h1>Spotify Web Player</h1>
+  <button onclick="window.location.href='/login'">Login with Spotify</button>
+  <button id="play-btn">▶️ Play</button>
+  <button id="pause-btn">⏸️ Pause</button>
+  <script src="/static/script.js"></script>
 </body>
 
 </html>

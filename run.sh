@@ -9,7 +9,7 @@ lsof -ti :5000 | xargs kill -9
 echo "Starting Flask Backend..."
 cd backend
 source venv/bin/activate # On Windows, replace with venv\Scripts\activate
-# pip install -r requirements.txt
+pip install -r requirements.txt
 python3 app.py &
 
 echo "Starting Frontend Server.."

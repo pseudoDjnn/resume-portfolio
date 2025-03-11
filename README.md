@@ -24,30 +24,37 @@ This project is a unique, interactive 3D resume portfolio that allows users to e
 
 ## Project Structure
 ```
-resume-portfolio/
-│── backend/                     # Flask Backend
-│   ├── app.py                   # Main application file
-│   ├── config.py                # Configuration settings (API keys, database, etc.)
-│   ├── requirements.txt         # Dependencies and Python packages
-│   ├── static/                  # Static assets (CSS, JavaScript, images)
-│   ├── templates/               # HTML templates (for non-3D interactions)
-│   ├── db.sqlite3               # SQLite database (for contact messages and logs)
-│   ├── routes/                  # API Endpoints
+/my-project
+│── backend/                     
+│   ├── venv/                    # Python virtual environment
+│   ├── .env                     # Environment Variables (Spotify API keys, secrets)
+│   ├── app.py                   # Flask app entry point
+│   ├── config.py                # Configuration settings
+│   ├── requirements.txt         # Python dependencies
+│   ├── routes/                  
 │   │   ├── __init__.py
-│   │   ├── contact.py           # Contact form API
-│   │   ├── spotify.py           # Spotify API integration
+│   │   ├── spotify.py           # Handles Spotify API authentication
+│   ├── static/                  
 │
-│── frontend/                    # 3D Resume Frontend
-│   ├── index.html               # Main entry point
-│   ├── main.js                  # Core Three.js logic
-│   ├── shaders/                 # Custom GLSL shaders for rendering effects
-│   ├── styles.css               # Styling for UI elements
-│   ├── assets/                  # 3D models, textures, music samples
-│   ├── utils.js                 # Helper functions for Three.js interactions
+│── frontend/                    
+│   ├── index.html               
+│   ├── js/                      
+│   │   ├── player.js            # OOP Spotify Player Logic
+│   │   ├── threeApp.js          # Three.js Visualizer Logic
+│   │   ├── shaders.js           # GLSL Shader Loader
+│   ├── shaders/                 # Custom Shader File
+│   │   ├── fragment.glsl        # Fragment Shader
+│   │   ├── vertex.glsl          # Vertex Shader
+│   ├── styles/                  # Styling
+│   │   ├── style.css            # UI Design
+│   ├── assets/                  # 3D models, textures, music samples, etc...
+│   ├── utils/                   # Utiliy scripts for reusable functions
+│   │   ├── controls.js          # Custom camera & input controls for Three.js
 │
-│── README.md                    # Project documentation
-│── .gitignore                    # Files to exclude from version control
-│── run.sh                        # Script to launch the backend and frontend
+│── README.md                    # Documentation
+│── .gitignore                   # Ignore unnecessary files
+│── run.sh                       # Script to launch backend and frontend
+
 ```
 
 ## Installation & Setup
