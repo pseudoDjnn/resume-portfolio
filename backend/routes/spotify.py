@@ -1,6 +1,6 @@
 from flask import Blueprint, request, redirect, session, jsonify
 import requests
-from config import config  # ✅ Import the `config` object, NOT `get_config`
+from config import config
 
 spotify_bp = Blueprint("spotify", __name__, url_prefix="/spotify")
 
@@ -9,6 +9,7 @@ SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token"
 
 
 class SpotifyAuth:
+    
     """
     Handles Spotify OAuth authentication and token management.
     """
@@ -20,12 +21,14 @@ class SpotifyAuth:
         self.client_id = config.SPOTIFY_CLIENT_ID
         self.client_secret = config.SPOTIFY_CLIENT_SECRET
         self.redirect_uri = config.SPOTIFY_REDIRECT_URI
-        self.scope = "user-read-playback-state user-modify-playback-state streaming"
+        self.scope = config.SPOTIFY_SCOPE
 
     def get_auth_url(self):
+        
         """
         Generate Spotify authentication URL.
         """
+        
         return (
             f"{SPOTIFY_AUTH_URL}?client_id={self.client_id}"
             f"&response_type=code&redirect_uri={self.redirect_uri}"
@@ -33,9 +36,11 @@ class SpotifyAuth:
         )
 
     def request_token(self, auth_code):
+        
         """
         Exchange authorization code for access token.
         """
+        
         payload = {
             "grant_type": "authorization_code",
             "code": auth_code,
@@ -54,9 +59,11 @@ class SpotifyAuth:
         return {"error": token_data.get("error_description", "Failed to retrieve token")}
 
     def refresh_token(self):
+        
         """
         Refresh the Spotify access token.
         """
+        
         refresh_token = session.get("spotify_refresh_token")
         if not refresh_token:
             return {"error": "No refresh token found"}
@@ -83,13 +90,14 @@ spotify_auth = SpotifyAuth()
 # Debugging Route - Get Spotify Config
 @spotify_bp.route("/config", methods=["GET"])
 def get_spotify_config():
+    
     """
     Return Spotify config (for debugging).
     """
+    
     return jsonify({
         "SPOTIFY_CLIENT_ID": config.SPOTIFY_CLIENT_ID,
-        "SPOTIFY_REDIRECT_URI": config.SPOTIFY_REDIRECT_URI,
-        "SCOPE": "user-read-playback-state user-modify-playback-state streaming"
+        "SPOTIFY_REDIRECT_URI": config.SPOTIFY_REDIRECT_URI
     })
 
 
@@ -116,7 +124,11 @@ def callback():
 # Get stored access token
 @spotify_bp.route("/token")
 def get_token():
-    """Returns the stored access token if available."""
+    
+    """
+    Returns the stored access token if available.
+    """
+    
     access_token = session.get("spotify_access_token")
     if not access_token:
         return jsonify({"error": "No token found"}), 401
