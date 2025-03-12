@@ -14,6 +14,6 @@ python3 app.py &
 
 echo "Starting Frontend Server.."
 cd ../frontend
-python3 -m http.server 8000 & # Serves index.html
+python3 -m http.server 8000 --directory . & # Serves index.html
 
 echo "Application running. Access frontend at http://localhost:8000"
