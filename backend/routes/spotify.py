@@ -35,7 +35,7 @@ class SpotifyAuth:
             "client_id": self.client_id,
             "response_type": "code",
             "redirect_uri": self.redirect_uri,
-            "scope": self.scope
+            "scope": " ".join(self.scope) if isinstance(self.scope, list) else self.scope
         }
         
         return f"{SPOTIFY_AUTH_URL}?{urlencode(params)}"
@@ -81,13 +81,19 @@ class SpotifyAuth:
             "client_id": self.client_id,
             "client_secret": self.client_secret,
         }
-
-        response = requests.post(SPOTIFY_TOKEN_URL, data=payload)
-        token_data = response.json()
+        try:
+            response = requests.post(SPOTIFY_TOKEN_URL, data=payload)
+            response.raise_for_status()
+            token_data = response.json()
+        except requests.RequestException as e:
+            return {"error": f"Request failed: {str(e)}"}
 
         if "access_token" in token_data:
             session["spotify_access_token"] = token_data["access_token"]
+            session["spotify_token_expires"] = time.time() + token_data.get("expires_in", 3600)
             return token_data
+        
+        session.clear()
         return {"error": token_data.get("error_description", "Failed to refresh token")}
 
 
@@ -142,7 +148,7 @@ def get_token():
     if not access_token or time.time() > expires_at:
         token_response = spotify_auth.refresh_token()
         if "error" in token_response:
-            return jsonify({"error": "No token found"}), 401
+            return jsonify({"error": "No valid token found"}), 401
         access_token = token_response["access_token"]
 
     return jsonify({"access_token": access_token})
