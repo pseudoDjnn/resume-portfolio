@@ -4,17 +4,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Spotify OOP Player</title>
-  <script src="https://sdk.scdn.co/spotify-player.js"></script>
+  <title>Spotify + Three.js</title>
+  <link rel="stylesheet" href="./css/styles.css">
 </head>
 
 <body>
-  <h1>Spotify Web Player</h1>
-  <button onclick="loginToSpotify()">Login with Spotify</button>
-  <button id="play-btn">▶️ Play</button>
-  <button id="pause-btn">⏸️ Pause</button>
-
-  <script src="js/player.js"></script> <!-- Updated to correct path -->
+  <div id="app">
+    <canvas id="threeCanvas"></canvas> <!-- Three.js Renders Here -->
+    <div id="spotify-player-container">
+      <iframe id="spotifyPlayer" src="" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+    </div>
+  </div>
+  <script src="https://sdk.scdn.co/spotify-player.js"></script>
+  <script type="module" src="./js/main.js"></script>
 </body>
 
 </html>

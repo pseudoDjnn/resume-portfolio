@@ -1,68 +1,43 @@
-/* Three.js Canvas - Fullscreen */
-#threejs-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -1;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* Spotify Player - Floating Overlay */
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: black;
+}
+
+#app {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+#threeCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
 #spotify-player-container {
-  position: fixed;
+  position: absolute;
   bottom: 20px;
-  right: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 80px;
   z-index: 10;
 }
 
-#toggle-player {
-  background-color: #1db954;
-  border: none;
-  color: white;
-  padding: 10px;
-  font-size: 20px;
-  cursor: pointer;
-  border-radius: 50%;
-}
-
-/* Mini Player Collapsed */
-#spotify-player {
-  background: rgba(25, 25, 25, 0.9);
-  color: white;
-  padding: 15px;
-  width: 300px;
-  border-radius: 10px;
-  display: none;
-}
-
-/* Expanded Player */
-#spotify-player.expanded {
-  display: block;
-}
-
-#track-info {
-  display: flex;
-  align-items: center;
-}
-
-#album-art {
-  width: 50px;
-  height: 50px;
-  border-radius: 5px;
-  margin-right: 10px;
-}
-
-#controls {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-}
-
-button {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 18px;
-  cursor: pointer;
+#spotifyPlayer {
+  width: 100%;
+  height: 100%;
 }

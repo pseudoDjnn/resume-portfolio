@@ -10,6 +10,7 @@ node_modules/
 
 # env
 *.env
+flask_session/
 
 
 # OS-specific
