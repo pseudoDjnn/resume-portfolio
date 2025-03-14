@@ -4,19 +4,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Spotify + Three.js</title>
+  <title>Spotify Audio Player</title>
   <link rel="stylesheet" href="./css/styles.css">
+  <script src="https://sdk.scdn.co/spotify-player.js"></script>
 </head>
 
 <body>
-  <div id="app">
-    <canvas id="threeCanvas"></canvas> <!-- Three.js Renders Here -->
-    <div id="spotify-player-container">
-      <iframe id="spotifyPlayer" src="" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+
+  <!-- Audio Player Container -->
+  <div class="audio-player">
+    <div class="player-header">
+      <h3 id="track-title">Not Playing</h3>
+      <button id="toggle-player">▼</button>
+    </div>
+
+    <div class="player-body">
+      <div class="track-info">
+        <img id="album-cover" src="" alt="Album Cover">
+        <div>
+          <p id="artist-name">Artist Name</p>
+          <p id="album-name">Album Name</p>
+        </div>
+      </div>
+
+      <!-- Playback Controls -->
+      <div class="controls">
+        <button id="prev-btn">⏮️</button>
+        <button id="play-pause-btn">▶️</button>
+        <button id="next-btn">⏭️</button>
+      </div>
+
+      <input type="range" id="seek-bar" value="0">
     </div>
   </div>
-  <script src="https://sdk.scdn.co/spotify-player.js"></script>
-  <script type="module" src="./js/main.js"></script>
+
+  <script src="./js/main.js"></script>
 </body>
 
 </html>
