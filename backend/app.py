@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from flask_session import Session
 from routes.spotify import spotify_bp
 import os
@@ -8,6 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app, origins=["http://localhost:8000"], supports_credentials=True)
 
 # Flask-Session Config
 app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY", "default_secret_key")

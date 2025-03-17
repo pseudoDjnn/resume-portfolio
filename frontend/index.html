@@ -4,40 +4,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Spotify Audio Player</title>
-  <link rel="stylesheet" href="./css/styles.css">
+  <title>Spotify Web Playback SDK</title>
   <script src="https://sdk.scdn.co/spotify-player.js"></script>
+  <link rel="stylesheet" href="./css/styles.css">
 </head>
 
 <body>
-
-  <!-- Audio Player Container -->
-  <div class="audio-player">
-    <div class="player-header">
-      <h3 id="track-title">Not Playing</h3>
-      <button id="toggle-player">▼</button>
-    </div>
-
-    <div class="player-body">
-      <div class="track-info">
-        <img id="album-cover" src="" alt="Album Cover">
-        <div>
-          <p id="artist-name">Artist Name</p>
-          <p id="album-name">Album Name</p>
-        </div>
-      </div>
-
-      <!-- Playback Controls -->
-      <div class="controls">
-        <button id="prev-btn">⏮️</button>
-        <button id="play-pause-btn">▶️</button>
-        <button id="next-btn">⏭️</button>
-      </div>
-
-      <input type="range" id="seek-bar" value="0">
-    </div>
+  <div class="player-card">
+    <h1>Spotify Web Player</h1>
+    <button id="activate-player">Activate Player</button>
+    <button id="play-button">Play</button>
+    <button id="pause-button">Pause</button>
+    <button id="next-button">Next</button>
+    <button id="prev-button">Previous</button>
+    <p><strong>Currently Playing:</strong> <span id="track-name">None</span></p>
   </div>
-
   <script src="./js/main.js"></script>
 </body>
 
