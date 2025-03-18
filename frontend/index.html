@@ -3,23 +3,45 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Spotify Web Playback SDK</title>
-  <script src="https://sdk.scdn.co/spotify-player.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spotify Audio Player</title>
   <link rel="stylesheet" href="./css/styles.css">
+  <!-- Favicon to avoid 404 errors -->
+  <link rel="icon" href="data:,">
 </head>
 
 <body>
-  <div class="player-card">
-    <h1>Spotify Web Player</h1>
-    <button id="activate-player">Activate Player</button>
-    <button id="play-button">Play</button>
-    <button id="pause-button">Pause</button>
-    <button id="next-button">Next</button>
-    <button id="prev-button">Previous</button>
-    <p><strong>Currently Playing:</strong> <span id="track-name">None</span></p>
+  <!-- Player Card (Collapsible UI) -->
+  <div class="player-card collapsed" id="player-card">
+    <div class="player-header">
+      <h2 id="track-title">Not Playing</h2>
+      <button id="toggle-player">▼</button>
+    </div>
+    <div class="player-body">
+      <div class="track-info">
+        <img id="album-cover" src="" alt="Album Cover">
+        <div class="track-details">
+          <p id="artist-name">Artist</p>
+          <p id="album-name">Album</p>
+        </div>
+      </div>
+      <div class="controls">
+        <button id="prev-button">⏮️</button>
+        <button id="play-button">Play</button>
+        <!-- <button id="pause-button">Pause</button> -->
+        <button id="next-button">Next</button>
+      </div>
+    </div>
   </div>
-  <script src="./js/main.js"></script>
+
+  <!-- Login Container (visible if no token exists) -->
+  <div id="login-container">
+    <button id="login-button">Login with Spotify</button>
+  </div>
+
+  <!-- Load Spotify Web Playback SDK before our main script -->
+  <script src="https://sdk.scdn.co/spotify-player.js"></script>
+  <script type="module" src="./js/main.js"></script>
 </body>
 
 </html>
