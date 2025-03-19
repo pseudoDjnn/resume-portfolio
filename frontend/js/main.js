@@ -1,13 +1,10 @@
-/**
- * SpotifyApp class encapsulates all functionality for the Spotify Web Playback SDK.
- * It handles token extraction (Implicit Grant Flow), player initialization,
- * auto-enabling shuffle, and starting playback of a given playlist.
- */
+// config object for non-sensitive configuration
+const config = {
+  playlistUri: "https://open.spotify.com/playlist/6MM5yloxZErNfwXch8gTBq?si=a5ce1a802a5545b6", // Replace with your actual playlist URI
+};
+
+// SpotifyApp class encapsulates all Spotify Web Playback SDK functionality.
 class SpotifyApp {
-  /**
-   * Creates a new SpotifyApp instance.
-   * @param {string} playlistUri - The Spotify URI of the playlist to play.
-   */
   constructor(playlistUri) {
     this.playlistUri = playlistUri;
     this.token = null;
@@ -17,20 +14,19 @@ class SpotifyApp {
   }
 
   /**
-   * Extracts the access token and expiration time from the URL hash and stores them in localStorage.
+   * Extracts the access token and its expiration timestamp from the URL hash.
+   * If found, stores them in localStorage and cleans the URL.
    */
   extractTokenFromURL() {
     const hash = window.location.hash.substring(1);
     const params = new URLSearchParams(hash);
-    if (params.has("access_token")) {
+    if (params.has("access_token") && params.has("expires_in")) {
       this.token = params.get("access_token");
-      // 'expires_in' is provided in seconds
-      const expiresIn = parseInt(params.get("expires_in") || "3600", 10);
-      // Set expiration timestamp (in milliseconds)
+      const expiresIn = parseInt(params.get("expires_in"), 10);
       this.tokenExpiresAt = Date.now() + expiresIn * 1000;
       localStorage.setItem("spotify_access_token", this.token);
       localStorage.setItem("spotify_token_expires", this.tokenExpiresAt.toString());
-      // Clean the URL so the token isn’t visible
+      // Clean URL so the token isn't visible
       window.history.replaceState({}, document.title, "/");
       console.log("✅ Token extracted from URL:", this.token);
     } else {
@@ -42,11 +38,33 @@ class SpotifyApp {
   }
 
   /**
-   * Checks if the token is expired.
-   * @returns {boolean} - True if the token is expired, false otherwise.
+   * Checks whether the current token is expired.
+   * @returns {boolean} True if token is expired.
    */
   isTokenExpired() {
     return !this.token || !this.tokenExpiresAt || Date.now() >= this.tokenExpiresAt;
+  }
+
+  /**
+   * Refreshes the token by calling the backend refresh endpoint.
+   * @returns {Promise<void>}
+   */
+  async refreshToken() {
+    try {
+      const response = await fetch("http://localhost:8888/refresh_token");
+      const data = await response.json();
+      if (response.ok && data.access_token && data.expires_in) {
+        this.token = data.access_token;
+        this.tokenExpiresAt = Date.now() + data.expires_in * 1000;
+        localStorage.setItem("spotify_access_token", this.token);
+        localStorage.setItem("spotify_token_expires", this.tokenExpiresAt.toString());
+        console.log("✅ Token refreshed:", this.token);
+      } else {
+        console.error("Token refresh failed:", data.error);
+      }
+    } catch (error) {
+      console.error("Error refreshing token:", error);
+    }
   }
 
   /**
@@ -57,30 +75,29 @@ class SpotifyApp {
       console.error("❌ No access token found. Cannot initialize player.");
       return;
     }
-
     this.player = new Spotify.Player({
       name: "Web Playback SDK Player",
       getOAuthToken: cb => { cb(this.token); },
       volume: 0.5
     });
-
     this.player.addListener("ready", ({ device_id }) => {
       console.log("✅ Player ready with Device ID:", device_id);
       this.deviceId = device_id;
     });
-
     this.player.addListener("player_state_changed", state => {
       if (!state) return;
       document.getElementById("track-title").innerText = state.track_window.current_track.name;
-      if (state.track_window.current_track.album && state.track_window.current_track.album.images.length > 0) {
-        document.getElementById("album-cover").src = state.track_window.current_track.album.images[0].url;
+      if (
+        state.track_window.current_track.album &&
+        state.track_window.current_track.album.images.length > 0
+      ) {
+        document.getElementById("album-cover").src =
+          state.track_window.current_track.album.images[0].url;
       }
     });
-
     this.player.addListener("authentication_error", ({ message }) => {
       console.error("⚠️ Authentication error:", message);
     });
-
     this.player.connect();
   }
 
@@ -105,22 +122,16 @@ class SpotifyApp {
         console.log("✅ Shuffle enabled.");
       } else {
         const err = await response.json();
-        // Optionally ignore error if reason is NO_ACTIVE_DEVICE
-        if (err.reason === "NO_ACTIVE_DEVICE") {
-          console.warn("Shuffle not enabled because no active device; this can occur transiently.");
-        } else {
-          console.error("Failed to enable shuffle:", err);
-        }
+        console.error("Failed to enable shuffle:", err);
       }
     } catch (error) {
       console.error("Error enabling shuffle:", error);
     }
   }
 
-
   /**
-   * Transfers playback to the Web SDK device and starts playing the specified playlist.
-   * If no playback state exists, it starts at a random offset.
+   * Transfers playback to the current device and starts playing the playlist.
+   * If playback is paused, it resumes; if no state exists, it starts with a random offset.
    * @returns {Promise<void>}
    */
   async playPlaylist() {
@@ -128,12 +139,11 @@ class SpotifyApp {
       console.error("❌ Device ID not set yet.");
       return;
     }
-
-    // Enable shuffle mode first
+    // Enable shuffle first
     await this.enableShuffle();
 
     try {
-      // Transfer playback to the Web SDK device (optional step)
+      // Transfer playback to this device (if needed)
       await fetch("https://api.spotify.com/v1/me/player", {
         method: "PUT",
         headers: {
@@ -144,15 +154,15 @@ class SpotifyApp {
       });
       console.log("✅ Playback transferred to Web SDK.");
 
-      // Check current state; if paused, resume instead of restarting from offset 0
+      // Check current state: if paused, resume playback
       const state = await this.player.getCurrentState();
       if (state && state.paused) {
-        console.log("Resuming playback from current position.");
+        console.log("Resuming playback.");
         await this.player.resume();
         return;
       }
 
-      // If no state or starting fresh, use a random offset to start playback
+      // If no playback state exists, start playback with a random offset.
       const maxOffset = 20; // Adjust based on your playlist length
       const randomOffset = Math.floor(Math.random() * maxOffset);
       console.log(`Starting playback from random offset: ${randomOffset}`);
@@ -179,21 +189,19 @@ class SpotifyApp {
   }
 
   /**
-   * Starts the Spotify app by extracting the token, checking expiration, and initializing the player.
+   * Starts the Spotify app by extracting the token, checking for expiration,
+   * refreshing if necessary, and initializing the player.
    * @returns {Promise<void>}
    */
   async start() {
     this.extractTokenFromURL();
     if (this.isTokenExpired()) {
-      console.error("❌ Token is expired. Please log in again.");
-      // Clear expired token and show login container
-      localStorage.removeItem("spotify_access_token");
-      localStorage.removeItem("spotify_token_expires");
-      document.getElementById("login-container").style.display = "block";
-      return;
+      console.warn("Token is expired. Refreshing token...");
+      await this.refreshToken();
     }
     if (this.token) {
       this.initializePlayer();
+      // Hide login container if token exists
       document.getElementById("login-container").style.display = "none";
     } else {
       console.error("❌ No access token available. Please log in.");
@@ -213,13 +221,9 @@ document.addEventListener("DOMContentLoaded", () => {
     card.classList.toggle("expanded");
   });
 
-  // Login button event: Redirect user to Spotify login if no token is available
+  // Login button event: Redirect user to our Node.js backend login endpoint
   document.getElementById("login-button").addEventListener("click", () => {
-    const clientId = "0fc30e3c75bf4435b7d94bd90677a159"; // Replace with your actual Spotify Client ID
-    const redirectUri = "http://localhost:8000/"; // Must match your Spotify app settings
-    const scopes = encodeURIComponent("user-read-playback-state user-modify-playback-state streaming");
-    const authUrl = `https://accounts.spotify.com/authorize?client_id=YOUR_CLIENT_ID&response_type=token&redirect_uri=${encodeURIComponent("http://localhost:8000/")}&scope=${scopes}`;
-    window.location.href = authUrl;
+    window.location.href = "http://localhost:8889/login";
   });
 
   // Hide the login container by default
@@ -231,7 +235,6 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("SpotifyApp instance not available.");
       return;
     }
-    // Check current state: if paused, resume; if playing, pause; if no state, start playlist.
     const state = await window.spotifyApp.player.getCurrentState();
     if (state && state.paused) {
       console.log("Resuming playback.");
@@ -245,15 +248,19 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Basic controls for Next and Previous tracks
-  document.getElementById("next-button").addEventListener("click", () => window.spotifyApp && window.spotifyApp.player.nextTrack());
-  document.getElementById("prev-button").addEventListener("click", () => window.spotifyApp && window.spotifyApp.player.previousTrack());
+  document.getElementById("next-button").addEventListener("click", () => {
+    window.spotifyApp && window.spotifyApp.player.nextTrack();
+  });
+  document.getElementById("prev-button").addEventListener("click", () => {
+    window.spotifyApp && window.spotifyApp.player.previousTrack();
+  });
 });
 
 // Initialize the Spotify app when the SDK is ready
 window.onSpotifyWebPlaybackSDKReady = async () => {
   console.log("🎵 Spotify Web Playback SDK is ready!");
-  // Replace with your actual playlist URI, e.g., "spotify:playlist:YOUR_VALID_PLAYLIST_ID"
-  const playlistUri = "https://open.spotify.com/playlist/6MM5yloxZErNfwXch8gTBq?si=eb54f64a6d9a4c3d";
+  // Use the playlist URI from the config object.
+  const playlistUri = config.playlistUri;
   window.spotifyApp = new SpotifyApp(playlistUri);
   await window.spotifyApp.start();
 };

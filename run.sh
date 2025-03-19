@@ -1,19 +1,24 @@
 #!/bin/bash
 
-echo "Killing any existing frontend on port 8000..."
+echo "Killing any existing processes on port 8000 (frontend)..."
 lsof -ti :8000 | xargs kill -9
 
-echo "Killing any existing backend on port 5000..."
-lsof -ti :5000 | xargs kill -9
+echo "Killing any existing processes on port 8888 (backend)..."
+lsof -ti :8888 | xargs kill -9
 
-echo "Starting Flask Backend..."
-cd backend
-source venv/bin/activate # On Windows, replace with venv\Scripts\activate
-pip install -r requirements.txt
-python3 app.py &
+echo "Starting Node backend server on port 8888..."
+cd backend/routes
+node server.js &
+cd ../..
 
-echo "Starting Frontend Server.."
-cd ../frontend
-python3 -m http.server 8000 --directory . & # Serves index.html
+# Wait a few seconds for the backend to fully start
+sleep 2
 
-echo "Application running. Access frontend at http://localhost:8000"
+echo "Starting Frontend Server on port 8000..."
+cd frontend
+python3 -m http.server 8000 --directory . &
+cd ..
+
+echo "Application running!"
+echo "Backend (API): http://localhost:8888"
+echo "Frontend: http://localhost:8000"
