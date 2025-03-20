@@ -1,8 +1,8 @@
 const express = require('express');
 const axios = require('axios');
+require('dotenv').config({ path: "../.env" });
 const querystring = require('querystring');
 const cors = require('cors');
-require('dotenv').config();
 
 const app = express();
 app.use(cors({
@@ -15,6 +15,9 @@ app.use(express.json());
 const client_id = process.env.SPOTIFY_CLIENT_ID;
 const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
 const redirect_uri = process.env.SPOTIFY_REDIRECT_URI; // should be "http://localhost:8888/callback"
+console.log("Client ID:", process.env.SPOTIFY_CLIENT_ID);
+console.log("Redirect URI:", process.env.SPOTIFY_REDIRECT_URI);
+
 
 // In-memory store for the refresh token (for demo purposes only)
 let refreshTokenStore = null;
