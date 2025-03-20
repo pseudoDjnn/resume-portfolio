@@ -1,56 +1,94 @@
-/* Basic Spotify-like Card Layout */
+/* Global styles */
 body {
-  font-family: Arial, sans-serif;
-  background-color: #121212;
-  margin: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #1c1f2b;
+  margin: 0 auto;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  color: #fff;
 }
 
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* Player Card Container */
 .player-card {
-  background-color: #181818;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   width: 320px;
-  overflow: hidden;
-  transition: all 0.3s ease;
-  margin-bottom: 20px;
+  overflow-y: hidden;
+  transition: height 0.8s ease, opacity 0.8s ease;
+  z-index: 1000;
 }
 
-.player-card.collapsed .player-body {
-  display: none;
+/* Collapsed state: only header is visible */
+.player-card.collapsed {
+  height: 60px;
 }
 
-.player-card.expanded .player-body {
-  display: block;
+/* Expanded state: full card; height auto-calculated */
+.player-card.expanded {
+  height: auto;
 }
 
+@keyframes spin {
+  from {
+    --angle: 0deg;
+  }
+
+  to {
+    --angle: 360deg;
+  }
+}
+
+/* Player Header */
 .player-header {
   background-color: #282828;
-  padding: 10px 15px;
+  padding: 1px 15px;
   display: flex;
   justify-content: space-between;
+  /* Maintain horizontal space */
   align-items: center;
+  /* Center vertically */
+  cursor: pointer;
+  color: #fff;
+  transition: all 5.8s ease;
 }
 
+/* Toggle button (hamburger icon) */
 #toggle-player {
   background: none;
   border: none;
+  font-size: 24px;
   color: #fff;
-  font-size: 18px;
   cursor: pointer;
+  transition: transform 0.8s ease;
 }
 
+/* Rotate the toggle icon when expanded */
+.player-card.expanded #toggle-player {
+  transform: rotate(90deg);
+}
+
+/* Player Body */
 .player-body {
   padding: 15px;
-  text-align: center;
+  background-color: #1e1e1e;
+  opacity: 1;
+  transition: opacity 0.8s ease;
 }
 
+/* Hide body when collapsed */
+.player-card.collapsed .player-body {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Track Info */
 .track-info {
   display: flex;
   align-items: center;
@@ -59,20 +97,21 @@ body {
 }
 
 .track-info img {
-  width: 80px;
-  height: 80px;
-  border-radius: 6px;
-  margin-right: 10px;
+  width: 150px;
+  height: 150px;
+  border-radius: 8px;
   object-fit: cover;
-  border: 2px solid #1DB954;
+  margin-right: 15px;
+  border: 2px solid #444;
 }
 
 .track-details p {
-  margin: 2px 0;
-  font-size: 14px;
-  color: #b3b3b3;
+  margin: 4px 0;
+  font-size: 16px;
+  color: #ccc;
 }
 
+/* Controls */
 .controls {
   display: flex;
   justify-content: space-around;
@@ -80,28 +119,28 @@ body {
 }
 
 .controls button {
-  background-color: #1DB954;
+  background-color: #444;
   border: none;
   border-radius: 50%;
   width: 50px;
   height: 50px;
+  font-size: 22px;
   color: #fff;
-  font-size: 20px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 .controls button:hover {
-  background-color: #1ed760;
+  background-color: #666;
 }
 
-/* Login Container Styles */
+/* Login Container */
 #login-container {
   margin-top: 20px;
 }
 
 #login-button {
-  background-color: #1DB954;
+  background-color: #444;
   border: none;
   border-radius: 20px;
   padding: 10px 20px;
@@ -112,5 +151,5 @@ body {
 }
 
 #login-button:hover {
-  background-color: #1ed760;
+  background-color: #666;
 }
