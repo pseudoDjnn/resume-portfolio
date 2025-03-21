@@ -180,8 +180,9 @@ class SpotifyApp {
         return;
       }
       // If no playback state exists, start playback with a random offset.
-      const maxOffset = 20; // Adjust based on your playlist length
-      const randomOffset = Math.floor(Math.random() * maxOffset);
+      const minOffset = 5
+      const maxOffset = 55; // Adjust based on your playlist length
+      const randomOffset = Math.floor(Math.random() * (maxOffset - minOffset + 1));
       console.log(`Starting playback from random offset: ${randomOffset}`);
       const response = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${this.deviceId}`, {
         method: "PUT",
