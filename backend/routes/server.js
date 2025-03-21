@@ -1,8 +1,8 @@
 const express = require('express');
 const axios = require('axios');
-require('dotenv').config({ path: "../.env" });
 const querystring = require('querystring');
 const cors = require('cors');
+require('dotenv').config({ path: '../.env' });
 
 const app = express();
 app.use(cors({
@@ -14,13 +14,58 @@ app.use(express.json());
 // Load configuration from .env
 const client_id = process.env.SPOTIFY_CLIENT_ID;
 const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
-const redirect_uri = process.env.SPOTIFY_REDIRECT_URI; // should be "http://localhost:8888/callback"
-console.log("Client ID:", process.env.SPOTIFY_CLIENT_ID);
-console.log("Redirect URI:", process.env.SPOTIFY_REDIRECT_URI);
+const redirect_uri = process.env.SPOTIFY_REDIRECT_URI;
+console.log("Client ID:", client_id);
+console.log("Redirect URI:", redirect_uri);
 
-
-// In-memory store for the refresh token (for demo purposes only)
+// In-memory store for the refresh token (demo purposes only)
 let refreshTokenStore = null;
+
+// In-memory storage for the current access token and expiration
+let currentAccessToken = null;
+let currentTokenExpiresAt = null;
+let refreshTimeoutId = null;
+
+/**
+ * Schedules an automatic token refresh 60 seconds before expiration.
+ * @param {number} expiresInSeconds - The token's lifetime in seconds.
+ */
+function scheduleAutoRefresh(expiresInSeconds) {
+  const delay = (expiresInSeconds * 1000) - 60000; // refresh 60 seconds before expiration
+  console.log(`Scheduling auto-refresh in ${Math.floor(delay / 1000)} seconds.`);
+  refreshTimeoutId = setTimeout(autoRefreshToken, delay);
+}
+
+/**
+ * Automatically refreshes the access token using the stored refresh token.
+ */
+async function autoRefreshToken() {
+  if (!refreshTokenStore) {
+    console.error("No refresh token stored; cannot auto-refresh.");
+    return;
+  }
+  try {
+    const response = await axios({
+      method: 'post',
+      url: 'https://accounts.spotify.com/api/token',
+      data: querystring.stringify({
+        grant_type: 'refresh_token',
+        refresh_token: refreshTokenStore,
+        client_id: client_id,
+        client_secret: client_secret
+      }),
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+    currentAccessToken = response.data.access_token;
+    const expiresIn = response.data.expires_in;
+    currentTokenExpiresAt = Date.now() + expiresIn * 1000;
+    console.log("Auto-refreshed token:", currentAccessToken);
+    // Schedule next refresh
+    scheduleAutoRefresh(expiresIn);
+  } catch (error) {
+    console.error("Error auto-refreshing token:", error.response ? error.response.data : error);
+  }
+}
 
 /**
  * GET /login
@@ -41,7 +86,7 @@ app.get('/login', (req, res) => {
 /**
  * GET /callback
  * Handles Spotify's redirect after login, exchanges the authorization code for tokens,
- * and stores the refresh token.
+ * stores the refresh token, and schedules automatic token refreshing.
  */
 app.get('/callback', async (req, res) => {
   const code = req.query.code || null;
@@ -64,41 +109,29 @@ app.get('/callback', async (req, res) => {
     });
     const access_token = response.data.access_token;
     const refresh_token = response.data.refresh_token;
-    refreshTokenStore = refresh_token;
-    // Redirect to your frontend with token info in the query (or set a cookie)
-    res.redirect(`http://localhost:8000/?access_token=${access_token}&expires_in=${response.data.expires_in}`);
+    refreshTokenStore = refresh_token; // store refresh token for future use
+    currentAccessToken = access_token;
+    const expiresIn = response.data.expires_in;
+    currentTokenExpiresAt = Date.now() + expiresIn * 1000;
+    // Schedule automatic refresh
+    scheduleAutoRefresh(expiresIn);
+    // Redirect to frontend with token info in query parameters
+    res.redirect(`http://localhost:8000/?access_token=${access_token}&expires_in=${expiresIn}`);
   } catch (error) {
-    console.error('Error exchanging code for token:', error.response.data);
+    console.error('Error exchanging code for token:', error.response ? error.response.data : error);
     res.status(500).send('Error exchanging code for token');
   }
 });
 
 /**
  * GET /refresh_token
- * Uses the stored refresh token to obtain a new access token.
+ * Returns the current (auto-refreshed) access token.
  */
-app.get('/refresh_token', async (req, res) => {
-  if (!refreshTokenStore) {
-    return res.status(400).json({ error: 'No refresh token available' });
+app.get('/refresh_token', (req, res) => {
+  if (!currentAccessToken) {
+    return res.status(400).json({ error: 'No access token available' });
   }
-  try {
-    const response = await axios({
-      method: 'post',
-      url: 'https://accounts.spotify.com/api/token',
-      data: querystring.stringify({
-        grant_type: 'refresh_token',
-        refresh_token: refreshTokenStore,
-        client_id: client_id,
-        client_secret: client_secret
-      }),
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    });
-    const new_access_token = response.data.access_token;
-    res.json({ access_token: new_access_token, expires_in: response.data.expires_in });
-  } catch (error) {
-    console.error('Error refreshing token:', error.response.data);
-    res.status(500).json({ error: 'Failed to refresh token' });
-  }
+  res.json({ access_token: currentAccessToken, expires_in: Math.floor((currentTokenExpiresAt - Date.now()) / 1000) });
 });
 
 const PORT = process.env.PORT || 8888;

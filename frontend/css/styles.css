@@ -35,6 +35,27 @@ body {
   height: auto;
 }
 
+.player-header::after,
+.player-header::before {
+  content: '';
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background-image: conic-gradient(from var(--angle), transparent 70%, #181818, #444, #181818);
+  animation: 1s spin linear infinite;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  z-index: -1;
+  /* padding: 3px; */
+  border-radius: 10px;
+}
+
+.player-header::before {
+  filter: blur(1.5rem);
+  opacity: 0.5;
+}
+
 @keyframes spin {
   from {
     --angle: 0deg;
