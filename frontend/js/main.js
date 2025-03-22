@@ -1,7 +1,7 @@
 // config object for non-sensitive configuration
 const config = {
-  // Use the Spotify URI for your playlist (use the spotify:playlist:... format for the SDK)
-  playlistUri: "https://open.spotify.com/playlist/6MM5yloxZErNfwXch8gTBq?si=7625938bd22845bb", // Replace with your actual playlist URI
+  // Use the Spotify URI for your playlist (using the "spotify:playlist:" format for the SDK)
+  playlistUri: "https://open.spotify.com/playlist/6MM5yloxZErNfwXch8gTBq?si=f8084efb295f4d5e", // Replace with your actual playlist URI
 };
 
 class SpotifyApp {
@@ -43,48 +43,6 @@ class SpotifyApp {
    */
   isTokenExpired() {
     return !this.token || !this.tokenExpiresAt || Date.now() >= this.tokenExpiresAt;
-  }
-
-  /**
-   * Refreshes the token by calling the backend refresh endpoint.
-   * Expects the backend to return a new access token and expires_in.
-   * @returns {Promise<void>}
-   */
-  async refreshToken() {
-    try {
-      const response = await fetch("http://localhost:8888/refresh_token");
-      const data = await response.json();
-      if (response.ok && data.access_token && data.expires_in) {
-        this.token = data.access_token;
-        this.tokenExpiresAt = Date.now() + data.expires_in * 1000;
-        localStorage.setItem("spotify_access_token", this.token);
-        localStorage.setItem("spotify_token_expires", this.tokenExpiresAt.toString());
-        console.log("✅ Token refreshed:", this.token);
-      } else {
-        console.error("Token refresh failed:", data.error);
-      }
-    } catch (error) {
-      console.error("Error refreshing token:", error);
-    }
-  }
-
-  /**
-   * Schedules an automatic token refresh 60 seconds before expiration.
-   */
-  scheduleTokenRefresh() {
-    const timeRemaining = this.tokenExpiresAt - Date.now();
-    const refreshTime = timeRemaining - 60000; // refresh 1 minute before expiration
-    if (refreshTime > 0) {
-      console.log(`Scheduling token refresh in ${Math.floor(refreshTime / 1000)} seconds.`);
-      setTimeout(async () => {
-        console.log("Automatically refreshing token...");
-        await this.refreshToken();
-        this.scheduleTokenRefresh(); // reschedule after refreshing
-      }, refreshTime);
-    } else {
-      // If already near expiry, refresh immediately and then schedule again.
-      this.refreshToken().then(() => this.scheduleTokenRefresh());
-    }
   }
 
   /**
@@ -172,7 +130,7 @@ class SpotifyApp {
         body: JSON.stringify({ device_ids: [this.deviceId], play: false })
       });
       console.log("✅ Playback transferred to Web SDK.");
-      // Check current state: if paused, resume playback.
+      // Check current state: if paused, resume playback
       const state = await this.player.getCurrentState();
       if (state && state.paused) {
         console.log("Resuming playback.");
@@ -180,9 +138,9 @@ class SpotifyApp {
         return;
       }
       // If no playback state exists, start playback with a random offset.
-      const minOffset = 5
-      const maxOffset = 55; // Adjust based on your playlist length
-      const randomOffset = Math.floor(Math.random() * (maxOffset - minOffset + 1));
+      const minOffset = 5;
+      const maxOffset = 50;
+      const randomOffset = minOffset + Math.floor(Math.random() * (maxOffset - minOffset + 1));
       console.log(`Starting playback from random offset: ${randomOffset}`);
       const response = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${this.deviceId}`, {
         method: "PUT",
@@ -207,22 +165,21 @@ class SpotifyApp {
 
   /**
    * Starts the Spotify app by extracting the token, checking for expiration,
-   * refreshing if necessary, initializing the player, and scheduling automatic token refresh.
+   * and initializing the player.
+   * If the token is expired, the user must log in again.
    * @returns {Promise<void>}
    */
   async start() {
     this.extractTokenFromURL();
     if (this.isTokenExpired()) {
-      console.warn("Token is expired. Refreshing token...");
-      await this.refreshToken();
-    }
-    if (this.token) {
+      console.warn("Token is expired. Please log in again.");
+      // Remove the expired token from localStorage
+      localStorage.removeItem("spotify_access_token");
+      localStorage.removeItem("spotify_token_expires");
+      document.getElementById("login-container").style.display = "block";
+    } else {
       this.initializePlayer();
       document.getElementById("login-container").style.display = "none";
-      this.scheduleTokenRefresh();
-    } else {
-      console.error("❌ No access token available. Please log in.");
-      document.getElementById("login-container").style.display = "block";
     }
   }
 }
@@ -231,7 +188,7 @@ class SpotifyApp {
 // DOM Event Listeners (wrapped in DOMContentLoaded)
 // ---------------------
 document.addEventListener("DOMContentLoaded", () => {
-  // Toggle the player card's expand/collapse state
+  // Toggle the player card's collapse/expand state
   document.getElementById("toggle-player").addEventListener("click", () => {
     const card = document.getElementById("player-card");
     card.classList.toggle("collapsed");
