@@ -1,20 +1,23 @@
 /* Global styles */
 body {
   font-family: 'Arial', sans-serif;
-  background-color: #1c1f2b;
-  margin: 0 auto;
+  background-color: #121212;
+  margin: 0;
   padding: 0;
+  overflow-x: hidden;
+  /* Ensure no horizontal scroll on body */
 }
 
 /* Player Card Container */
 .player-card {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  border-radius: 10px;
+  bottom: 55px;
+  right: 55px;
+  background-color: #181818;
+  border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  width: 320px;
-  overflow-y: hidden;
+  width: 377px;
+  overflow: hidden;
   transition: height 0.8s ease, opacity 0.8s ease;
   z-index: 1000;
 }
@@ -32,15 +35,13 @@ body {
 /* Player Header */
 .player-header {
   background-color: #282828;
-  padding: 1px 15px;
+  padding: 10px 330px;
   display: flex;
   justify-content: space-between;
-  /* Maintain horizontal space */
   align-items: center;
-  /* Center vertically */
   cursor: pointer;
   color: #fff;
-  transition: all 5.8s ease;
+  transition: all 0.8s ease;
 }
 
 /* Toggle button (hamburger icon) */
@@ -75,25 +76,36 @@ body {
 /* Track Info */
 .track-info {
   display: flex;
+  flex-direction: column;
+  /* Stack vertically */
   align-items: center;
+  gap: 10px;
+  /* Adds vertical spacing between elements */
   margin-bottom: 15px;
-  justify-content: center;
 }
 
+/* Text Elements for Track Details */
+.track-info h2,
+.track-info p {
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+  color: #e0e0e0;
+  /* Lighter text color */
+  text-align: center;
+}
+
+
+/* Enlarged Album Cover */
 .track-info img {
-  width: 150px;
-  height: 150px;
+  width: 140px;
+  /* Slightly larger than before */
+  height: 140px;
   border-radius: 8px;
   object-fit: cover;
-  margin-right: 15px;
   border: 2px solid #444;
 }
 
-.track-details p {
-  margin: 4px 0;
-  font-size: 16px;
-  color: #ccc;
-}
 
 /* Controls */
 .controls {
@@ -121,6 +133,7 @@ body {
 /* Login Container */
 #login-container {
   margin-top: 20px;
+  text-align: center;
 }
 
 #login-button {

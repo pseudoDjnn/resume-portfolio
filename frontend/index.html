@@ -4,42 +4,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Spotify Audio Player</title>
+  <title>Spotify Web Player</title>
   <link rel="stylesheet" href="./css/styles.css">
-  <!-- Favicon to avoid 404 errors -->
   <link rel="icon" href="data:,">
 </head>
 
 <body>
-  <!-- Player Card (Collapsible UI) -->
+  <!-- Player Card -->
   <div class="player-card collapsed" id="player-card">
     <div class="player-header">
-      <h2 id="track-title">Not Playing</h2>
-      <button id="toggle-player">▼</button>
+      <!-- The toggle button remains -->
+      <button id="toggle-player">☰</button>
     </div>
     <div class="player-body">
       <div class="track-info">
         <img id="album-cover" src="" alt="Album Cover">
-        <div class="track-details">
-          <p id="artist-name">Artist</p>
-          <p id="album-name">Album</p>
-        </div>
+        <!-- Artist name as an H2 -->
+        <h2 id="artist-name">Unknown Artist</h2>
+        <!-- Track title and album name as paragraphs -->
+        <p id="track-title">Track Title</p>
+        <p id="album-name">Album Name</p>
       </div>
       <div class="controls">
         <button id="prev-button">⏮️</button>
         <button id="play-button">▶️</button>
-        <!-- <button id="pause-button">Pause</button> -->
         <button id="next-button">⏭️</button>
       </div>
     </div>
   </div>
 
-  <!-- Login Container (visible if no token exists) -->
+  <!-- Login container -->
   <div id="login-container">
     <button id="login-button">Login with Spotify</button>
   </div>
 
-  <!-- Load Spotify Web Playback SDK before our main script -->
   <script src="https://sdk.scdn.co/spotify-player.js"></script>
   <script type="module" src="./js/main.js"></script>
 </body>
