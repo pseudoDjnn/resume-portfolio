@@ -212,7 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Login button event: Redirect to our Node.js backend login endpoint
   document.getElementById("login-button").addEventListener("click", () => {
-    window.location.href = "http://localhost:8888/login";
+    window.location.href = "http://localhost:8887/login";
   });
 
   // Hide the login container by default

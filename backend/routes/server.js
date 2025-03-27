@@ -134,5 +134,5 @@ app.get('/refresh_token', (req, res) => {
   res.json({ access_token: currentAccessToken, expires_in: Math.floor((currentTokenExpiresAt - Date.now()) / 1000) });
 });
 
-const PORT = process.env.PORT || 8888;
+const PORT = process.env.PORT || 8887;
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

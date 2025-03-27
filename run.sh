@@ -3,10 +3,10 @@
 echo "Killing any existing processes on port 8000 (frontend)..."
 lsof -ti :8000 | xargs kill -9
 
-echo "Killing any existing processes on port 8888 (backend)..."
-lsof -ti :8888 | xargs kill -9
+echo "Killing any existing processes on port 8887 (backend)..."
+lsof -ti :8887 | xargs kill -9
 
-echo "Starting Node backend server on port 8888..."
+echo "Starting Node backend server on port 8887..."
 cd backend/routes
 node server.js &
 cd ../..
@@ -20,5 +20,5 @@ python3 -m http.server 8000 --directory . &
 cd ..
 
 echo "Application running!"
-echo "Backend (API): http://localhost:8888"
+echo "Backend (API): http://localhost:8887"
 echo "Frontend: http://localhost:8000"
